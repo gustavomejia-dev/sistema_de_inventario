@@ -6,6 +6,7 @@ use App\Filament\Resources\InventoryResource\Pages;
 use App\Filament\Resources\InventoryResource\RelationManagers;
 use App\Models\Inventory;
 use Filament\Forms;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -27,22 +28,36 @@ class InventoryResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                ->label('Nome')
-              ,
-              Forms\Components\TextInput::make('description')
-              ->label('Descrição')
-            ,
-            Forms\Components\FileUpload::make('image')
-                ->image()
-                ->label('Imagem')
-            ,
-            Forms\Components\TextInput::make('quantity')
-              ->label('Quantidade')
-            ,
-            Forms\Components\TextInput::make('category_id')
-              ->label('Categoria')
-            ,
+
+
+                Grid::make()->schema([
+                    Forms\Components\TextInput::make('name')
+                    ->label('Nome')
+                  ,
+                    Forms\Components\TextInput::make('quantity')
+                    ->label('Quantidade')
+                 ,
+                 Forms\Components\Select::make('category_id')
+                 ->label('Categoria')
+                 ->searchable()
+                 ->relationship('category','name')
+                
+                 ,
+                ])->columns(3),
+               
+                Grid::make()->schema([
+                    Forms\Components\RichEditor::make('description')
+                    ->label('Descrição')
+                  ,
+                ])->columns(1),
+             
+                Forms\Components\FileUpload::make('image')
+                    ->image()
+                
+                    ->label('Imagem')
+                ,
+            
+               
               
             ]);
     }
@@ -57,12 +72,14 @@ class InventoryResource extends Resource
                 Tables\Columns\TextColumn::make('description')
                 ->label('Descrição')
                 ->searchable(),
-                Tables\Columns\TextColumn::make('image')->label('Imagem'),
+                Tables\Columns\ImageColumn::make('image')
+                ->disk('public')
+                ->label('Imagem'),            
                 Tables\Columns\TextColumn::make('quantity')
                 ->label('Quantidade')
                 ->numeric()
                 ->sortable(),
-                Tables\Columns\TextColumn::make('category_id')
+                Tables\Columns\TextColumn::make('category.name')
                 ->numeric()
                 ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
